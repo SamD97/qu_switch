@@ -3,14 +3,8 @@
 
 '''Basic parameters for simulations.
     @author: Saumil Shah'''
-    
+
 import numpy as np
-
-#maximum generatios to simulate
-mgen = 200
-
-#maximum  replicates to simulate
-mrep = 50
 
 #mutation rates per generation per individual per locus
 c1 = 1 * 1e-3 #very common
@@ -46,20 +40,3 @@ aswp = np.array([[0, 10, 20],
 bswp = np.array([[0, 1, 2],
                  [-1, 0, 1],
                  [-2, -1, 0]], dtype=np.int8)
-
-'''
-from mpl_toolkits.mplot3d import axes3d
-import matplotlib.pyplot as plt
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-ax.set_xticks([0,1,2])
-ax.set_xticklabels(['B0','B1','B2'])
-ax.set_yticks([-0,-1,-2])
-ax.set_yticklabels(['A0','A1','A2'])
-ax.set_zticks([0,10,20])
-X, Y = np.meshgrid(np.arange(3),-np.arange(3))
-cset = ax.plot_wireframe(X, Y, fitl, rstride=0)
-plt.show()
-
-'''
