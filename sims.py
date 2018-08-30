@@ -57,7 +57,7 @@ def fndb(p, b):
 
 #returns n random elements of p without replacements
 def pick(p, n):
-    return np.random.choice(p,min(n,p.size),replace=False)
+    return np.random.randint(0,p.size,min(n,p.size))
 
 #returns counts of individuals with given allele on locus A
 def frea(p):
