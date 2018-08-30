@@ -24,6 +24,7 @@ possible genotypes
 '''
 
 import gc
+import random
 from time import time
 from datetime import datetime
 import numpy as np
@@ -47,17 +48,17 @@ import defn as dn
 def indx(x):
     return np.divmod(x,10)
 
-#returns counts of mutation events on locus A
+#returns counts of allele a on locus A
 def fnda(p, a):
     return np.flatnonzero(np.divmod(p,10)[0]==a)
 
-#returns counts of mutation events on locus B
+#returns counts of allele b on locus B
 def fndb(p, b):
     return np.flatnonzero(np.divmod(p,10)[1]==b)
 
-#returns n random elements of p without replacements
+#returns n random indices of p without replacements
 def pick(p, n):
-    return np.random.randint(0,p.size,min(n,p.size))
+    return p[ random.sample(range(p.size),min(int(n),p.size)) ]
 
 #returns counts of individuals with given allele on locus A
 def frea(p):
@@ -72,11 +73,11 @@ t1 = time()
 df=[]
 
 for r in range(mrep):
-    gc.collect()
     pop0 = 11*np.ones(ccap, dtype=np.int8)
     popi = np.copy(pop0)
 
     for g in range(mgen):
+        gc.collect()
         popo = np.repeat(popi,dn.fitl[indx(popi)])
         nmoa,nmob = np.zeros(dn.amut.shape),np.zeros(dn.bmut.shape)
         nmoa = np.random.poisson(frea(popo)*dn.amut)
@@ -86,12 +87,12 @@ for r in range(mrep):
         nmoa, nmob = np.int64([nmoa,nmob])
         
         for ma in np.flatnonzero(nmoa):
-            f,t = np.divmod(ma,3)
-            popo[ pick(fnda(popo,f), nmoa[f,t]) ] += dn.aswp[f,t]
+            f1,t1 = np.divmod(ma,3)
+            popo[ pick(fnda(popo,f1), nmoa[f1,t1]) ] += dn.aswp[f1,t1]
             
         for mb in np.flatnonzero(nmob):
-            f,t = np.divmod(mb,3)
-            popo[ pick(fndb(popo,f), nmob[f,t]) ] += dn.bswp[f,t]
+            f2,t2 = np.divmod(mb,3)
+            popo[ pick(fndb(popo,f2), nmob[f2,t2]) ] += dn.bswp[f2,t2]
         
         popi = pick(popo,ccap)
         genc = np.bincount(popi, minlength=23)[dn.gref]
