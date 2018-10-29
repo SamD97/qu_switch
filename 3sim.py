@@ -42,20 +42,19 @@ ccap = int(args.ccap)
 mgen = int(args.mgen)
 mrep = int(args.mrep)
 
-import defn as dn
+import def3 as dn
 
 #returns indices of given genotype
 def indx(x):
-    return np.divmod(x,10)
+    a, d = np.divmod(x, 100)
+    b, c = np.divmod(d, 10)
+    return a,b,c
 
 #returns counts of allele a on locus A
-def fnda(p, a):
-    return np.flatnonzero(np.divmod(p,10)[0]==a)
+def fnda(p,l,a):
+    return np.flatnonzero(indx(p)[l]==a)
 
-#returns counts of allele b on locus B
-def fndb(p, b):
-    return np.flatnonzero(np.divmod(p,10)[1]==b)
-
+#reproduction step skipping offsprings
 def rprd(p,f,n):
     r = np.random.multinomial(n,f/sum(f))
     return np.repeat(p,r)
@@ -64,23 +63,19 @@ def rprd(p,f,n):
 def pick(p, n):
     return p[ random.sample(range(p.size), min(n,p.size)) ]
 
-#returns counts of individuals with given allele on locus A
-def frea(p):
-    return np.array([fnda(p,0).size, fnda(p,1).size, fnda(p,2).size]).reshape((3,1))
-
-#returns counts of individuals with given allele on locus B
-def freb(p):
-    return np.array([fndb(p,0).size, fndb(p,1).size, fndb(p,2).size]).reshape((3,1))
+#returns counts of individuals with given allele on given locus 
+def frea(p,l):
+    return np.array([fnda(p,l,0).size, fnda(p,l,1).size, fnda(p,l,2).size]).reshape((3,1))
 
 def cunt(p):
-    return np.bincount(p, minlength=23)[dn.gref]
+    return np.bincount(p, minlength=223)[dn.gref]
 
 t1 = time.time()
 
-df=np.zeros((11))
+df=np.zeros((29))
 
 for r in range(mrep):
-    popi = 11*np.ones(ccap, dtype=np.int64)
+    popi = 111*np.ones(ccap, dtype=np.int64)
     larn = np.random.randint(1000)
     df = np.vstack((df,np.append([larn,0],cunt(popi))))
 
@@ -88,19 +83,25 @@ for r in range(mrep):
         gc.collect()
         popo = np.repeat(popi,dn.fitl[indx(popi)])
         nmoa,nmob = np.zeros(dn.amut.shape),np.zeros(dn.bmut.shape)
-        nmoa = np.random.poisson(frea(popo)*dn.amut)
-        nmob = np.random.poisson(freb(popo)*dn.bmut)
+        nmoa = np.random.poisson(frea(popo,0)*dn.amut)
+        nmob = np.random.poisson(frea(popo,1)*dn.bmut)        
+        nmoc = np.random.poisson(frea(popo,2)*dn.cmut)
         np.fill_diagonal(nmoa,0)
         np.fill_diagonal(nmob,0)
-        nmoa, nmob = np.int64([nmoa,nmob])
+        np.fill_diagonal(nmoc,0)
+        nmoa, nmob, nmoc = np.int64([nmoa,nmob,nmoc])
         
         for ma in np.flatnonzero(nmoa):
             f1,t1 = np.divmod(ma,3)
-            popo[ pick(fnda(popo,f1), nmoa[f1,t1]) ] += dn.aswp[f1,t1]
+            popo[ pick(fnda(popo,0,f1), nmoa[f1,t1]) ] += dn.aswp[f1,t1]
             
         for mb in np.flatnonzero(nmob):
             f2,t2 = np.divmod(mb,3)
-            popo[ pick(fndb(popo,f2), nmob[f2,t2]) ] += dn.bswp[f2,t2]
+            popo[ pick(fnda(popo,1,f2), nmob[f2,t2]) ] += dn.bswp[f2,t2]
+            
+        for mc in np.flatnonzero(nmoc):
+            f3,t3 = np.divmod(mc,3)
+            popo[ pick(fnda(popo,2,f3), nmob[f3,t3]) ] += dn.cswp[f3,t3]
         
         popi = pick(popo,ccap)
         genc = cunt(popi)
@@ -112,7 +113,16 @@ for r in range(mrep):
 
 t2 = time.time()
 
-names=['r','g','LL', 'LO', 'LH', 'OL', 'OO', 'OH', 'HL', 'HO', 'HH']
+names=['r','g',
+       'LLL', 'LLO', 'LLH',
+       'LOL', 'LOO', 'LOH',
+       'LHL', 'LHO', 'LHH',
+       'OLL', 'OLO', 'OLH',
+       'OOL', 'OOO', 'OOH',
+       'OHL', 'OHO', 'OHH',
+       'HLL', 'HLO', 'HLH',
+       'HOL', 'HOO', 'HOH',
+       'HHL', 'HHO', 'HHH']
 
 df = pd.DataFrame(df,columns=names,dtype=np.int).drop(0,0)
 fn = '{}_{:.0e}.txt'.format(mgen, ccap)
