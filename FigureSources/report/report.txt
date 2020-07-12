@@ -1,0 +1,127 @@
+Introduction
+
+Fitness is a central concept in evolutionary biology. Classical description of the fitness of an individual is related to its reproductive output. Fitness was considered to be a property of an individuals but it can also be used to elucidate other higher or lower biological units such as the population or the gene. In context of altruistic behavior, group selection eventuates and a set of individuals with highest group fitness prevail. Whereas allelic or genotypic fitness describes the contribution of an allele or a genotype to the next generation. Genotype with higher fitness make up a greater proportion of the total gene pool than other genotypes.
+
+However, the fitness of particular allele or genotype depends on several other factors. One such controlling factor is the environement. The fitness of a genotype depends on the surrounding environement. For example, the fittest genotype during an ice age might not be the fittest genotype once the ice age is over. A population must alter its genotype according to the change in environment and this takes place via interaction of characteristics with the environment. The heritable genetic basis of any trait that gives it a fitness advantage over other traits becomes more common in population. Therefor the trait becomes enhanced in the population.
+
+Another factor that decides the fitness of a particular allele is alleles that the organism has for other genes.
+
+Recent experiments have revealed that adaptation to the same environment can result in the decay or enhancement of same character based on differences in population size. E. coli were subjected to growth in an environment with cocktail of three antibiotics in the experiments. While adapting to this environment E. coli cultures with small population sizes enhanced their efflux activity compared to the ancestors, whereas large population lost the efflux activity. Noting the tendency of the trait to undergo a retroverted description based on numerical changes, we are appealed to understand how quantitative changes can give rise to qualitative inversions. Here we have developed a simple model using a toolkit of basic evolutionary mechanisms that reproduces similar results as the experiments.
+
+Title
+
+Adaptation to the same environment can result in loss or gain of a trait based on different population sizes
+
+Objectives
+
+1) simulate for the result proposed in the title
+2) determine the minimal set of conditions which can lead to such behavior
+3) verify whether this phenomenon is deterministic and
+explore the possibility of mathematical modeling
+
+Methods
+
+The simulated populations were composed of asexual haploid individuals. To mimic the dynamics of such populations, agent-based computer simulations, constructed from simple Wright-Fisher Model having only random genetic drift along with mutations, were carried out. The simulations were subjected to discrete generations and were parameterized by population size, i.e. druring the simulation all the replicates maintained the specified population size resulting after the random genetic drift being applied every generation. These simulations were ran at wide range of population sizes, spanning over several orders of magnitudes. 
+
+Genotype of all individuals were composed of 2 loci, A and B, each with 3 alleles L (low expression), 0(intermediate expression), and H (high expression), which gave rise to 9 genotypes. All the simulations started with a clonal populations of wildtype individuals, A0B0 was chosen as the wildtype genotype.
+
+One could think of locus A as something that requires significant maintenance cost for its expression and is large in length. On the other hand, locus B can be thought of as a structural protein that does no require much maintenanace and is shorter in length. Locus A exhibited sign epistasis on locus B backgrounds. Which suggests that as expression of gene B increases the slope of the fitness landscape gets flipped from positive to negative in direction of expression of A illustrated in figure x.
+
+Mutations occured with probabilities shown in figure y. Mutation probabilities were kept low such that multiple mutations can't occur at a given time. Mutations that lower the expression of a gene were much more common than mutations that enhanced its expression. Mutations on locus A were more common  than mutations on locus B.
+
+algorithm wf_sims_with_mut is
+	input 	mutation_rates		A, B
+			fitness_landscape	W
+			population_size		N
+			Generations			G
+			Replicates			R
+
+(Note that A and B are 3x3 matrices where matrix element Aij/Bij is the rate of mutation event i -> j on locus A/B)
+(Note that W is a 3x3 matrix where matrix element Wij is the fitness of genotype ij)
+
+	output	frequencies			F
+
+(Note that F is a Rx9 vector where component Fij is the frequency of jth genotype at the end of ith replicate; j belongs to ordered array [LL,LO,LH,OL,OO,OH,HL,HO,HH])
+(Note that genotypes [LL,LO,LH,OL,OO,OH,HL,HO,HH] represented by integers [0,1,2,10,11,12,20,21,22])
+
+****************************************
+function count is
+	input	population 			P
+
+	output	frequencies			F
+
+	set F to 1x9 array of counts of p in P
+	// p belongs to ordered array [0,1,2,10,11,12,20,21,22]
+
+	return F
+****************************************
+
+****************************************
+function reproduce is
+	input	population 			P
+			fitness_landscape	W
+
+	output	population 			P
+
+	replace each element p of P with w(p) many copies in P 
+	// w(p) is fitness of individual p
+
+	return P
+****************************************
+
+****************************************
+function mutate is
+	input	population 			P
+			mutation_rates		A, B
+
+	output	population 			P
+
+	initialize	number_of_mutations	E, F
+	(Note that E and F are 3x3 matrices were matrix element Eij/Fij is the count of mutation event i -> j on locus A/B)
+
+	set E, F to counts of mutattion events sampled from poisson distribution
+	// The Law of Rare Events allows us to use poisson distribution
+
+	pick Eij/Fij random individual from P with 1st/2nd digit i and replace with j
+
+	return P
+****************************************
+
+	initialize	frequencies	F
+	set F to Rx9 array of zeros
+
+	for r := 1 to r := R step 1 do
+
+		initialize	population 	P
+		set P to 1xN array of 11
+		// individuals are elements of P
+
+		for g := 1 to g := G step 1 do
+
+			P := reproduce(P)
+			// updates P for reproduction
+			// size of P changed to sum of fitness of all individuals
+
+			P := mutate(P)
+			// updates P for mutation events
+			// size of P stays unchanged
+
+			P := pick N random elements from P
+			// updates P for random genetic drift (Wright-Fisher step)
+			// size of P changed to N
+
+			// end of a generation
+		end
+
+		F(r):= count(P)
+		// F(r) is rth row of matrix F
+
+		// end of a replicate
+	end
+
+	return F
+
+	// end of algorithm
+end
+
+Results

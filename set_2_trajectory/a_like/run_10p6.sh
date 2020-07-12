@@ -1,1 +1,0 @@
-python sims.py 1000000 1000 2

@@ -1,0 +1,10 @@
+python 3sim.py 10 500 10
+python 3sim.py 50 500 10
+python 3sim.py 100 500 10
+python 3sim.py 500 500 10
+python 3sim.py 1000 500 10
+python 3sim.py 5000 500 10
+python 3sim.py 10000 500 10
+python 3sim.py 50000 500 10
+python 3sim.py 100000 500 10
+python 3sim.py 500000 500 10
