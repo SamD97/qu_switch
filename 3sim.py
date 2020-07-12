@@ -76,7 +76,7 @@ df=np.zeros((29))
 
 for r in range(mrep):
     popi = 111*np.ones(ccap, dtype=np.int64)
-    larn = np.random.randint(1000)
+    larn = np.random.randint(100000)
     df = np.vstack((df,np.append([larn,0],cunt(popi))))
 
     for g in range(mgen):

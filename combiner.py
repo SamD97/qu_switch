@@ -8,6 +8,7 @@ import os
 import gc
 import sys
 import pandas as pd
+from numpy.random import randint
 
 path = input(' Please enter path to folder: ')
 if path == '': path = os.getcwd()
@@ -36,13 +37,14 @@ for i in range(no_f):
     
     mgen = int(files[i].split('_')[2])
     ccap = float(files[i].split('_')[4][:-4])
-    fn = '{}_{:.0e}.txt'.format(mgen, ccap)
+    fn = '{}_{:.0e}.pop'.format(mgen, ccap)
     
     df = pd.read_csv(files[i], '\t')
+    df.r = df.r.replace(pd.unique(df.r), randint(0,1000,len(pd.unique(df.r))))
     
     if not os.path.isfile(fn):
        df.to_csv(fn, '\t', index=False)
-    else: # else it exists so append without writing the header
+    else: 
        df.to_csv(fn, '\t', index=False, mode='a', header=False)    
     
     sys.stdout.write('\r[{}{}] {}% {}\t'.format('#'*int(((i+1)*50)/no_f),
